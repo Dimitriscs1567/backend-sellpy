@@ -45,7 +45,7 @@ const createInitialData = async () => {
 		});
 
 		const user3 = await User.create({
-			username: "user2",
+			username: "user3",
 		});
 
 		await Promise.all([

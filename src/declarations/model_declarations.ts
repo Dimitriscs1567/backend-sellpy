@@ -1,12 +1,14 @@
+import mongoose from "mongoose";
+
 export interface IItem {
 	description: string;
 	images: Array<string>;
-	owner: IUser;
+	owner: mongoose.Types.ObjectId;
 	ownerPrices: Array<number>;
-	soldPrice: number;
+	soldPrice?: number;
 	currency: string;
-	buyer: IUser;
-	cart: ICart;
+	buyer?: mongoose.Types.ObjectId;
+	cart?: mongoose.Types.ObjectId;
 }
 
 export interface IUser {
@@ -14,5 +16,5 @@ export interface IUser {
 }
 
 export interface ICart {
-	buyer: IUser;
+	buyer: mongoose.Types.ObjectId;
 }
