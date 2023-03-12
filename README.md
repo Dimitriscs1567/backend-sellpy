@@ -48,3 +48,40 @@ The user-stories presented below are the first and most basic features for the m
 
 - Your application does not need to handle user accounts. It's OK that all API endpoints are available to everyone
 - You can populate the database with some initial data on startup if you want (some items are probably needed to start things off). There is also a script (`npm run drop-db`) if you at any time want to reset the database and start from scratch.
+
+## Solution
+
+### General
+
+The solution covers all user-stories both mandatory and optional. It uses typescript instead of javascript. The database at the start is being populated with 3 users and 3 products.
+
+### Description
+
+The solution uses 3 models:
+
+1. User: Describes the sellers and buyers and contains only the username.
+2. Item: Describes the items that are being sold in the app. Contains a description of the item, a list of images, the owner(seller) of the item, the ownerPrices - which is a list of all the prices the seller has chosen, with the last one to be the current one -, the currency the seller has chosen, the cart if the item is in a cart, a soldPrice if the item is sold, the buyer if the item is sold.
+3. Cart: Describes the cart of a user and contains only the user(buyer).
+
+### Available Endpoints:
+
+#### Item
+
+- GET /items/all_items?currency={currency}: Returns all the available items for purchase with the price in the selected currency.
+- POST /items/all_items: Creates a new item. The body must be a json containing:
+
+1. description -> a string,
+2. images -> a list of strings,
+3. owner -> a string which is the username of the seller,
+4. currency -> a string with values EUR, DKK or SEK,
+5. price -> a number
+
+- GET /items/my_items?username={username}: Returns all the items of the seller represented by the username query.
+- PATCH /items/:itemId: Updates the price of a the selected item. The body must be a json containing price, which is the new price of the item.
+- GET /items/:itemId/price_history: Returns the price history of the selected item.
+
+#### Cart
+
+- POST /carts/:username/add: Adds an item to the user's cart.
+- POST /carts/:username/remove: Removes an item from the user's cart.
+- GET /carts/:username/all_items?currency={currency}: Returns all the items in the user's cart and a total price of all the items. All the prices are in the selected currency.
