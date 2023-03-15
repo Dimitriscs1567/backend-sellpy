@@ -3,17 +3,14 @@ import { CustomError } from "../declarations/custom_error";
 import { IItem } from "../declarations/model_declarations";
 import { Item } from "../models/item";
 import { User } from "../models/user";
-import { checkBody, convert, itemsWithConvertedPrices } from "../utils";
+import { checkBody, itemsWithConvertedPrices } from "../utils";
 import mongoose from "mongoose";
-import { currencyFromString } from "../declarations/currency";
+import { checkCurrency, Currency } from "../declarations/currency";
 
 export const allItems = (req: Request, res: Response, next: NextFunction) => {
 	Item.find({ soldPrice: null })
 		.then((result) => {
-			if (
-				!req.query.currency ||
-				currencyFromString(req.query.currency as string) === undefined
-			) {
+			if (!req.query.currency || !checkCurrency(req.query.currency as string)) {
 				const newError = new CustomError(
 					`No conversion for currency ${req.query.currency} exists!`,
 					400
@@ -23,7 +20,7 @@ export const allItems = (req: Request, res: Response, next: NextFunction) => {
 
 			const formattedItems = itemsWithConvertedPrices(
 				result,
-				currencyFromString(req.query.currency as string)!
+				req.query.currency as Currency
 			);
 
 			return res.status(200).json(formattedItems);

@@ -1,8 +1,4 @@
-import {
-	Currency,
-	currencyFromString,
-	currencyToString,
-} from "../declarations/currency";
+import { Currency } from "../declarations/currency";
 import { IItem } from "../declarations/model_declarations";
 import { IItemModel } from "../models/item";
 
@@ -25,18 +21,15 @@ const CONVERSION_RATES = {
 };
 
 type ConvertObject = {
-	value?: number;
-	currency?: Currency;
+	value: number;
+	currency: Currency;
 };
 
 export const convert =
 	(convertObject: ConvertObject) => (toCurrency: Currency) => {
 		if (convertObject.value === undefined || convertObject.currency === undefined)
 			throw new Error("value and currency is required for conversion");
-		const rate =
-			CONVERSION_RATES[currencyToString(convertObject.currency!)][
-				currencyToString(toCurrency)
-			];
+		const rate = CONVERSION_RATES[convertObject.currency][toCurrency];
 		if (!rate) throw new Error("Non-supported currency");
 		return {
 			value: Math.round(convertObject.value * rate * 100) / 100,
@@ -45,26 +38,18 @@ export const convert =
 	};
 
 export const checkBody = (body: object, keys: string[]) => {
-	let ok = true;
-
-	keys.forEach((key) => {
-		if (!Object.keys(body).includes(key)) {
-			ok = false;
-		}
-	});
-
-	return ok;
+	return keys.every((key) => Object.keys(body).includes(key));
 };
 
 export const itemsWithConvertedPrices = (
 	items: IItemModel[],
 	currency: Currency
-): any => {
+): (IItem & { price: number })[] => {
 	return items.map((item) => ({
 		...item.toJSON(),
 		price: convert({
 			value: item.ownerPrices[item.ownerPrices.length - 1],
-			currency: currencyFromString(item.currency),
+			currency: item.currency as Currency,
 		})(currency).value,
 	}));
 };

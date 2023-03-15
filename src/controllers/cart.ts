@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { currencyFromString } from "../declarations/currency";
+import { checkCurrency, Currency } from "../declarations/currency";
 import { CustomError } from "../declarations/custom_error";
 import { Cart } from "../models/cart";
 import { Item } from "../models/item";
@@ -102,10 +102,7 @@ export const allItems = async (
 		return res.status(200).json({ items: [], totalPrice: 0 });
 	}
 
-	if (
-		!req.query.currency ||
-		currencyFromString(req.query.currency as string) === undefined
-	) {
+	if (!req.query.currency || !checkCurrency(req.query.currency as string)) {
 		const newError = new CustomError(
 			`No conversion for currency ${req.query.currency} exists!`,
 			400
@@ -116,14 +113,13 @@ export const allItems = async (
 	const allCartItems = await Item.find({ cart: cart.id });
 	const convertedCartItems = itemsWithConvertedPrices(
 		allCartItems,
-		currencyFromString(req.query.currency as string)!
+		req.query.currency as Currency
 	);
 
 	return res.status(200).json({
 		items: convertedCartItems,
-		totalPrice: convertedCartItems.reduce(
-			(a: any, b: any) => a.price + b.price,
-			0
-		),
+		totalPrice: convertedCartItems.reduce((a, b) => {
+			return a + b.price;
+		}, 0),
 	});
 };
